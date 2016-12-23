@@ -1,0 +1,111 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Number Guess</title>
+  <meta name="description" content="Number drawing">
+  <meta name="author" content="kevmoeman">
+
+  <link rel="stylesheet" href="css/styles.css?v=1.0">
+
+  <!--[if lt IE 9]>
+  http://jsfiddle.net/techsin/rcjouqkf/
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  <![endif]-->
+</head>
+
+<body style="background-color:#383a3d;">
+  <canvas id='can' width="64" height="64" style="border: 1px solid black;background-color:white;"></canvas>
+  <br>
+  <button id="clearBtn">Clear</button>
+<script >
+    var can = getById('can'),
+    boxes = 64,
+    size = 1,
+    ctx = can.getContext('2d'),
+    clearBtn = getById('clearBtn');
+
+    var is_drawing = false;
+
+drawGrid();
+
+function drawGrid() {
+    var len = can.height = can.width = boxes * size;
+    // for (var i = 0; i < boxes; i++) {
+    //     ctx.beginPath();
+    //     ctx.moveTo(size + size * i - .5, 0);
+    //     ctx.lineTo(size + size * i - .5, len);
+    //     ctx.moveTo(0, size + size * i - .5);
+    //     ctx.lineTo(len, size + size * i - .5);
+    //     ctx.stroke();
+    // }
+}
+
+
+function fill_rect(mousePos){
+    var sx = (Math.ceil(mousePos.x/size)-1)*size,
+        sy =  (Math.ceil(mousePos.y/size)-1)*size;
+    console.log(sx,sy,sx+size,sy+size);
+    ctx.fillRect(sx,sy,size,size);
+};
+
+can.addEventListener('mousemove', function (evt) {
+  var mousePos = getMousePos(can, evt);
+  if(is_drawing){
+    fill_rect(mousePos);
+  }
+}, false);
+
+can.addEventListener('mouseup', function (evt) {
+  is_drawing = false;
+  console.log(getImageData());
+  alert('TODO Implement post to spicy api');
+}, false);
+can.addEventListener('mouseout', function (evt) {
+  is_drawing = false;
+}, false);
+can.addEventListener('mousedown', function (evt) {
+  is_drawing = true;
+  var mousePos = getMousePos(can, evt);
+  fill_rect(mousePos);
+}, false);
+
+
+clearBtn.addEventListener('click', function (evt) {
+    ctx.clearRect(0,0,can.width,can.height);
+    drawGrid();
+});
+
+
+function getMousePos(canvas, evt) {
+    var rect = can.getBoundingClientRect();
+    return {
+        x: evt.clientX - rect.left,
+        y: evt.clientY - rect.top
+    };
+}
+
+function getById(x) {
+    return document.getElementById(x);
+}
+
+
+function getImageData(){
+  var imgd = can.getContext("2d").getImageData(0, 0, 64, 64);
+  var pix = imgd.data;
+
+  rtv = []
+  for (var i = 0, n = pix.length; i < n; i += 4) {
+      // pix[i  ] = 255 - pix[i  ]; // red
+      rtv.push(pix[i+1]); // green
+      pix[i+2] = 255 - pix[i+2]; // blue
+      // i+3 is alpha (the fourth element)
+  }
+  return rtv;
+}
+
+</script>
+</body>
+</html>
