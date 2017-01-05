@@ -2,6 +2,7 @@
 
 <html lang="en">
 <head>
+
   <meta charset="utf-8">
 
   <title>Number Guess</title>
@@ -10,10 +11,7 @@
 
   <link rel="stylesheet" href="css/styles.css?v=1.0">
 
-  <!--[if lt IE 9]>
-  http://jsfiddle.net/techsin/rcjouqkf/
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
-  <![endif]-->
+
 </head>
 
 <body style="background-color:#383a3d;">
@@ -60,8 +58,55 @@ can.addEventListener('mousemove', function (evt) {
 
 can.addEventListener('mouseup', function (evt) {
   is_drawing = false;
-  console.log(getImageData());
+  console.log("im querying the server");
   alert('TODO Implement post to spicy api');
+  var url = "http://localhost:8080/numberguess";
+  var method = "POST";
+  var postData = JSON.stringify(getImageData());
+
+  // You REALLY want async = true.
+  // Otherwise, it'll block ALL execution waiting for server response.
+  var async = true;
+
+  var request = new XMLHttpRequest();
+
+  // Before we send anything, we first have to say what we will do when the
+  // server responds. This seems backwards (say how we'll respond before we send
+  // the request? huh?), but that's how Javascript works.
+  // This function attached to the XMLHttpRequest "onload" property specifies how
+  // the HTTP response will be handled.
+  request.onload = function () {
+
+     // Because of javascript's fabulous closure concept, the XMLHttpRequest "request"
+     // object declared above is available in this function even though this function
+     // executes long after the request is sent and long after this function is
+     // instantiated. This fact is CRUCIAL to the workings of XHR in ordinary
+     // applications.
+
+     // You can get all kinds of information about the HTTP response.
+     var status = request.status; // HTTP response status, e.g., 200 for "200 OK"
+     var data = request.responseText; // Returned data, e.g., an HTML document.
+     console.log(status, data)
+  }
+
+  request.open(method, url, async);
+
+  // request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+  // Or... request.setRequestHeader("Content-Type", "text/plain;charset=UTF-8");
+  // Or... whatever
+
+  // Actually sends the request to the server.
+  request.send(postData);
+
+
+
+
+
+
+
+
+
+
 }, false);
 can.addEventListener('mouseout', function (evt) {
   is_drawing = false;
@@ -99,7 +144,7 @@ function getImageData(){
   rtv = []
   for (var i = 0, n = pix.length; i < n; i += 4) {
       // pix[i  ] = 255 - pix[i  ]; // red
-      rtv.push(pix[i+1]); // green
+      rtv.push(pix[i+3]); // alpha
       pix[i+2] = 255 - pix[i+2]; // blue
       // i+3 is alpha (the fourth element)
   }
